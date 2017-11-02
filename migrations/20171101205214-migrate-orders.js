@@ -36,6 +36,7 @@ const updateOrders = (sequelize) => {
             console.log('>>> order.id: ', order.id)
             throw new Error("Found different FromCollectiveIds for Order Id")
           } else if (FromCollectiveIds.length === 1 && order.FromCollectiveId !== FromCollectiveIds[0].FromCollectiveId) {
+            console.log('>>> Changing FromCollectiveId of Order Id', order.id, 'from', order.FromCollectiveId, 'to', FromCollectiveIds[0].FromCollectiveId)
             return sequelize.query(`
               UPDATE "Orders"
                 SET "FromCollectiveId" = :FromCollectiveId
