@@ -8,6 +8,8 @@ import {
 } from 'graphql';
 
 import GraphQLJSON from 'graphql-type-json';
+import { days } from '../lib/utils';
+import Promise from 'bluebird';
 
 import {
   CollectiveInterfaceType
@@ -228,6 +230,25 @@ export const MemberType = new GraphQLObjectType({
         type: TierType,
         resolve(member, args, req) {
           return member.TierId && req.loaders.tiers.findById.load(member.TierId);
+        }
+      },
+      isActive: {
+        type: GraphQLBoolean,
+        description: "returns whether this member is active (i.e. last transaction occured within tier.interval)",
+        resolve(member, args, req) {
+          if (!member.TierId) return true;
+
+          return member.TierId && Promise.props({
+            tier: req.loaders.tiers.findById.load(member.TierId),
+            transactions: req.loaders.members.transactions.load(`${member.CollectiveId}:${member.MemberCollectiveId}`)
+          }).then(({ tier, transactions }) => {
+            if (!tier || !tier.interval) return true;
+            if (!transactions || transactions.length === 0) return false;
+            const today = new Date;
+            if (tier.interval === 'month' && days(transactions[0].createdAt, today) <= 31) return true;
+            if (tier.interval === 'year' && days(transactions[0].createdAt, today) <= 365) return true;
+            return false;
+          });
         }
       },
       stats: {
