@@ -29,6 +29,26 @@ export function createCollective(_, args, req) {
     collectiveData.geoLocationLatLong = { type: 'Point', coordinates: [location.lat, location.long] };
   }
 
+  // We add default tiers for new collectives (unless specified)
+  if (collectiveData.type === 'COLLECTIVE' && !collectiveData.tiers) {
+    collectiveData.tiers = [
+      {
+        type: 'TIER',
+        name: 'backer',
+        slug: 'backers',
+        amount: 500,
+        interval: 'month'
+      },
+      {
+        type: 'TIER',
+        name: 'sponsor',
+        slug: 'sponsors',
+        amount: 10000,
+        interval: 'month'
+      }
+    ];
+  }
+
   const promises = [];
   if (args.collective.HostCollectiveId) {
     promises.push(

@@ -9,11 +9,6 @@
       "secret": "circleci-a6ad8e62b53b18b4c30295f45d849c1"
     }
   },
-  "stripe": {
-    "secret": "sk_test_3",
-    "clientId": "abc",
-    "key": "pk_test_5"
-  },
   "aws": {
     "s3": {
       "bucket": "opencollective-test",
