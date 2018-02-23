@@ -179,7 +179,8 @@ async function notifyByEmail(activity) {
       break;
 
     case activityType.COLLECTIVE_CREATED:
-      notifyAdminsOfCollective(activity.data.host.id, activity);
+      // if there is no host, we notify ourselves (admins of open collective internal)
+      notifyAdminsOfCollective(get(activity, 'data.host.id') || 1, activity);
       break;
 
   }

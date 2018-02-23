@@ -4,6 +4,7 @@ import slugify from 'slug';
 import { types } from '../../constants/collectives';
 import roles from '../../constants/roles';
 import activities from '../../constants/activities';
+import { get } from 'lodash';
 
 export function createCollective(_, args, req) {
   if (!req.remoteUser) {
@@ -118,10 +119,10 @@ export function createCollective(_, args, req) {
     models.Activity.create({
       type: activities.COLLECTIVE_CREATED,
       UserId: req.remoteUser.id,
-      CollectiveId: hostCollective.id,
+      CollectiveId: get(hostCollective, 'id'),
       data: {
         collective: collective.info,
-        host: hostCollective.info,
+        host: get(hostCollective, 'info'),
         user: {
           email: req.remoteUser.email,
           collective: remoteUserCollective.info
