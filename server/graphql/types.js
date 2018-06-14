@@ -1139,7 +1139,9 @@ export const PaymentMethodType = new GraphQLObjectType({
       expiryDate: {
         type: GraphQLString,
         resolve(paymentMethod) {
-          return paymentMethod.expiryDate;
+          return paymentMethod.expiryDate
+            ? paymentMethod.expiryDate.toISOString()
+            : null;
         }
       },
       service: {
