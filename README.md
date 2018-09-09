@@ -54,14 +54,11 @@ the API from the address http://localhost:13060.
 
 #### Requirements
 - A PostgreSQL installation (10.3, 9.6.8, 9.5.12, 9.4.17, 9.3.22 or newer)
+- Python 2. You can use `pyenv` to switch python versions.
 
 #### Steps
 
-Make sure you have python 2 as your active version. You can use `pyenv` to switch python versions.
-
-Copy `env.default` and rename it to `.env`
- 
-Install the dependencies by running: 
+Install the dependencies and initialize the database by running: 
 
 ```
 npm install
@@ -69,7 +66,7 @@ npm install
 
 Troubleshooting:
 - If you're running into node-gyp issues related to Python 3 vs Python 2 you can run `npm rebuild` or run `npm install` again.
-- The postinstall script should set-up your default environment and bootstrap the database along with some seed data. If it is failing you can try to run: `npm run db:setup && ./node_modules/.bin/babel-node ./scripts/db_restore.js opencollective_dvl`
+- The postinstall script should set-up your default environment and bootstrap the database along with some seed data. If it is failing you can try to run: `./scripts/db_restore.sh -d opencollective_dvl -f test/dbdumps/opencollective_dvl.pgsql`
 
 Start the API by running:
 

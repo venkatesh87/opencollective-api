@@ -1,30 +1,39 @@
 # Database
 
-You need to have Postgres 9.x with the Postgis extension.
+You need to have Postgres 9.x or 10.x with the Postgis extension. More specifically:
+ - 9.3.x: 9.3.22 or newer
+ - 9.4.x: 9.4.17 or newer
+ - 9.5.x: 9.5.12 or newer
+ - 9.6.x: 9.6.8 or newer
+ - 10.x: 10.3 or newer
 
 ## Installation
 
 ### On macOS
 
-Last time we checked, the simplest way to get this running was using [Postgres.app](http://postgresapp.com/).
+Last time we checked, the 2 following options were working:
+ - Postgres 9.x or 10.x through [Postgres.app](http://postgresapp.com/).
+ - Postgres 10.x through Homebrew: `brew install postgresql postgis`
 
-Using brew was not an option:
- - `brew install postgresql postgis` would end up with Postgres 10.x
- - `brew install postgresql@9.x` would end up with Postgres 9.x without possibility to install Postgis
+## Database initialization
 
-## Setting Up The database
+### For development:
 
-Now, assuming the postgres database superuser is `postgres`:
+Everything should be normally taken care of by `npm install`.
+
+If something goes wrong, drop the `opencollective_dvl` database and the `opencollective`
 
 ```
-createdb -U postgres opencollective_test
-createdb -U postgres opencollective_dvl
-createuser -U postgres opencollective
-psql -U postgres -c 'GRANT ALL PRIVILEGES ON DATABASE opencollective_dvl TO opencollective'
-psql -U postgres -c 'GRANT ALL PRIVILEGES ON DATABASE opencollective_test TO opencollective'
-psql -U postgres -d opencollective_dvl -c 'CREATE EXTENSION postgis'
-psql -U postgres -d opencollective_test -c 'CREATE EXTENSION postgis'
+dropdb opencollective_dvl
+dropuser opencollective
 ```
+
+Then, starts again with `npm install`
+
+Notes:
+
+- under the hood `npm install` is ultimately triggering `./scripts/db_restore.sh -d opencollective_dvl -f test/dbdumps/opencollective_dvl.pgsql`
+- an alternative version is also available (`npm run db:setup && npx babel-node ./scripts/db_restore.js opencollective_dvl`) but we don't recommend to use it in dev environment at the moment
 
 ## Troubleshooting
 
