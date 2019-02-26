@@ -48,19 +48,19 @@ if [ -z "$LOCALDBNAME" ]; then usage; fi;
 # where pg_stat_activity.datname = '$LOCALDBNAME'
 # EOF
 
-dropdb --if-exists $LOCALDBNAME;
-createdb $LOCALDBNAME 2> /dev/null
+dropdb -h localhost -U postgres --if-exists $LOCALDBNAME;
+createdb -h localhost -U postgres $LOCALDBNAME 2> /dev/null
 
 # Add POSTGIS extension
-psql "${LOCALDBNAME}" -c "CREATE EXTENSION POSTGIS;" 1> /dev/null
+psql -h localhost -U postgres "${LOCALDBNAME}" -c "CREATE EXTENSION POSTGIS;" 1> /dev/null
 
 # The first time we run it, we will trigger FK constraints errors
 set +e
-pg_restore --no-acl -n public -O -c -d "${LOCALDBNAME}" "${DBDUMP_FILE}" 2>/dev/null
+pg_restore -h localhost -U postgres --no-acl -n public -O -c -d "${LOCALDBNAME}" "${DBDUMP_FILE}" 2>/dev/null
 set -e
 
 # So we run it twice :-)
-pg_restore --no-acl -n public -O -c -d "${LOCALDBNAME}" "${DBDUMP_FILE}"
+pg_restore -h localhost -U postgres --no-acl -n public -O -c -d "${LOCALDBNAME}" "${DBDUMP_FILE}"
 
 echo "DB restored to postgres://localhost/${LOCALDBNAME}"
 
@@ -68,20 +68,20 @@ echo "DB restored to postgres://localhost/${LOCALDBNAME}"
 {
   set +e
   # We make sure the user $LOCALDBUSER has access; could fail
-  psql "${LOCALDBNAME}" -c "CREATE ROLE ${LOCALDBUSER} WITH login;" 2>/dev/null
+  psql -h localhost -U postgres "${LOCALDBNAME}" -c "CREATE ROLE ${LOCALDBUSER} WITH login;" 2>/dev/null
   set -e
 
   # Change ownership of all tables
-  tables=`psql -qAt -c "select tablename from pg_tables where schemaname = 'public';" "${LOCALDBNAME}"`
+  tables=`psql -h localhost -U postgres -qAt -c "select tablename from pg_tables where schemaname = 'public';" "${LOCALDBNAME}"`
 
   for tbl in $tables ; do
-    psql "${LOCALDBNAME}" -c "alter table \"${tbl}\" owner to ${LOCALDBUSER};"
+    psql -h localhost -U postgres "${LOCALDBNAME}" -c "alter table \"${tbl}\" owner to ${LOCALDBUSER};"
   done
 
   # Change ownership of the database
-  psql "${LOCALDBNAME}" -c "alter database ${LOCALDBNAME} owner to ${LOCALDBUSER};"
+  psql -h localhost -U postgres "${LOCALDBNAME}" -c "alter database ${LOCALDBNAME} owner to ${LOCALDBUSER};"
 
-  psql "${LOCALDBNAME}" -c "GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO ${LOCALDBUSER};"
-  psql "${LOCALDBNAME}" -c "GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO ${LOCALDBUSER};"
+  psql -h localhost -U postgres "${LOCALDBNAME}" -c "GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO ${LOCALDBUSER};"
+  psql -h localhost -U postgres "${LOCALDBNAME}" -c "GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO ${LOCALDBUSER};"
 
 } | tee >/dev/null
