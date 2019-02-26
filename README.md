@@ -14,14 +14,17 @@ If you see a step below that could be improved (or is outdated), please update t
 ### Prerequisite
 
 1. Make sure you have Node.js version >= 10.
-
-- We recommend using [nvm](https://github.com/creationix/nvm): `nvm use`.
-
+  - We recommend using [nvm](https://github.com/creationix/nvm):
+    ```
+    nvm use
+    ```
 2. Make sure you have a PostgreSQL database available
-
-- Check the version: 10.3, 9.6.8, 9.5.12, 9.4.17, 9.3.22 or newer
-- Check that the [PostGIS](https://postgis.net/install/) extension is available
-
+  - Check the version: 10.3, 9.6.8, 9.5.12, 9.4.17, 9.3.22 or newer
+  - Check that the [PostGIS](https://postgis.net/install/) extension is available
+  - Or run it in [Docker](https://www.docker.com/):
+    ```
+    docker run -p 5432:5432 -d --name opencollective-postgres mdillon/postgis:9.6
+    ```
 3. For [node-gyp](https://github.com/nodejs/node-gyp), make sure you have Python 2 available and configured as the active version. You can use [pyenv](https://github.com/pyenv/pyenv) to manage Python versions.
 
 ### Install
