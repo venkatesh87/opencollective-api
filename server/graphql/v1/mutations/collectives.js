@@ -1,9 +1,8 @@
 import debug from 'debug';
 import slugify from 'limax';
 import { get, omit } from 'lodash';
-import { map } from 'bluebird';
 
-import models, { Op } from '../../../models';
+import models from '../../../models';
 import * as errors from '../../errors';
 import emailLib from '../../../lib/email';
 import * as github from '../../../lib/github';
@@ -11,12 +10,10 @@ import { defaultHostCollective } from '../../../lib/utils';
 
 import roles from '../../../constants/roles';
 import activities from '../../../constants/activities';
-import status from '../../../constants/order_status';
 import { types } from '../../../constants/collectives';
 
 const debugClaim = debug('claim');
 const debugGithub = debug('github');
-const debugArchive = debug('archive');
 
 export async function createCollective(_, args, req) {
   if (!req.remoteUser) {
@@ -661,25 +658,7 @@ export async function archiveCollective(_, args, req) {
     });
   }
 
-  return collective
-    .getIncomingOrders({
-      where: { status: status.ACTIVE, [Op.and]: { status: status.PENDING } },
-      include: [{ model: models.Subscription }, { model: models.Collective, as: 'collective' }],
-    })
-    .then(orders => {
-      // Map through the `orders` but only create 3 promises to update/cancel orders at a time
-      return map(
-        orders,
-        order => {
-          return Promise.all([order.update({ status: status.CANCELLED }), order.Subscription.deactivate()]);
-        },
-        { concurrency: 3 },
-      );
-    })
-    .then(() => debugArchive('updateOrderAndCancelSubscription'))
-    .then(() => {
-      return collective.update({ isActive: false, deactivatedAt: Date.now() });
-    });
+  return collective.update({ isActive: false, deactivatedAt: Date.now() });
 }
 
 export async function unarchiveCollective(_, args, req) {
