@@ -1,4 +1,3 @@
-import config from 'config';
 import sequelize from 'sequelize';
 import SqlString from 'sequelize/lib/sql-string';
 import {
@@ -831,9 +830,7 @@ const CollectiveFields = () => {
     imageUrl: {
       type: GraphQLString,
       resolve(collective, args) {
-        const imageType = collective.type === 'USER' ? 'avatar' : 'logo';
-        const imageHeight = args.height ? `/${args.height}` : '';
-        return `${config.host.images}/${collective.slug}/${imageType}${imageHeight}.${args.format}`;
+        return collective.getImageUrl(args);
       },
     },
     backgroundImage: {
@@ -845,9 +842,7 @@ const CollectiveFields = () => {
     backgroundImageUrl: {
       type: GraphQLString,
       resolve(collective, args) {
-        const imageType = 'background';
-        const imageHeight = args.height ? `/${args.height}` : '';
-        return `${config.host.images}/${collective.slug}/${imageType}${imageHeight}.${args.format}`;
+        return collective.getBackgroundImageUrl(args);
       },
     },
     settings: {
